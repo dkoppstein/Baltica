@@ -26,11 +26,12 @@ cond, rep = glob_wildcards("mappings/{cond}_{rep}.bam")
 cond = set(cond)
 
 
-container: "docker://tbrittoborges/junctionseq:1.16.0"
+
 
 
 strandness = {"fr-secondstrand": "--stranded_fr_secondstrand", "fr-firststrand": "--stranded"}
 
+include: "symlink.smk"
 
 rule all:
     input:
@@ -47,12 +48,9 @@ rule all:
         ),
 
 
-localrules:
-    cat_decoder,
-    create_decoder,
-
-
-include: "symlink.smk"
+#localrules:
+#    cat_decoder,
+#    create_decoder,
 
 
 rule junctionseq_qc:
@@ -66,6 +64,7 @@ rule junctionseq_qc:
         strandness=strandness.get(config.get("strandness"), ""),
         max_read=config["read_len"],
         is_paired_end="--singleEnded" if config.get("is_single_end") == True else "",
+    container: "docker://tbrittoborges/junctionseq:1.16.0"
     log:
         "logs/junctionseq_qc/{name}.log",
     shadow:
@@ -76,7 +75,7 @@ rule junctionseq_qc:
         "{input} {params.gtf} {params.output} 2> {log}"
 
 
-rule junctionseq_create_decoder:
+rule create_decoder:
     log:
         "logs/junctionseq_create_decoder/{comparison}.log",
     output:
@@ -90,13 +89,14 @@ rule junctionseq_create_decoder:
                     fou.write("{0}\t{1}\n".format(n, n.split("_")[0]))
 
 
-rule junctionseq_cat_decoder:
+rule cat_decoder:
     input:
         decoder=expand("junctionseq/{comparison}_decoder.tab", comparison=comp_names),
     output:
         "junctionseq/decoder.tab",
     log:
         "logs/junctionseq_cat_decoder.log",
+    container: "docker://tbrittoborges/junctionseq:1.16.0"
     shadow:
         "shallow"
     shell:
@@ -118,6 +118,7 @@ rule junctionseq_merge:
         strandness=strandness.get(config.get("strandness"), ""),
     log:
         "logs/junctionseq_merge.log",
+    container: "docker://tbrittoborges/junctionseq:1.16.0"
     shadow:
         "shallow"
     shell:
@@ -136,6 +137,7 @@ rule junctionseq_analysis:
         decoder="junctionseq/{comparison}_decoder.tab",
     output:
         "junctionseq/analysis/{comparison}_sigGenes.results.txt.gz",
+    container: "docker://tbrittoborges/junctionseq:1.16.0"
     log:
         "logs/junctioseq_analysis/{comparison}.log",
     threads: 10

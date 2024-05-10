@@ -38,9 +38,6 @@ strand = {"fr-firststrand": "--fr", "fr-secondstrand": "--rf"}
 workdir: config.get("path", ".")
 
 
-container: "docker://tbrittoborges/stringtie:2.1.5"
-
-
 cond, rep = extract_samples_replicates(config["samples"].keys())
 name = config["samples"].keys()
 raw_name = config["samples"].values()
@@ -69,6 +66,7 @@ rule stringtie_merge_bam:
         bam="stringtie/merged_bam/{group}.bam",
         bai="stringtie/merged_bam/{group}.bam.bai",
     threads: 10
+    container: "docker://tbrittoborges/stringtie:2.1.5"
     log:
         "logs/stringtie_merge_bam/{group}.log",
     wildcard_constraints:
@@ -91,6 +89,7 @@ rule stringtie_denovo_transcriptomics:
         minimum_read_per_bp_coverage=config.get("minimum_read_per_bp_coverage", 3),
     wildcard_constraints:
         group="|".join(cond),
+    container: "docker://tbrittoborges/stringtie:2.1.5"
     log:
         "logs/stringtie_denovo_transcriptomics/{group}.log",
     shadow:
@@ -106,6 +105,7 @@ rule gffcompare:
         "stringtie/merged/merged.combined.gtf",
     log:
         "logs/gffcompare.log",
+    container: "docker://tbrittoborges/stringtie:2.1.5"
     params:
         gtf=config["ref"],
         out="stringtie/merged/merged",

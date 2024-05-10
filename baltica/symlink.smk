@@ -5,11 +5,13 @@ sample = config["samples"].values()
 from os import symlink, path
 from shutil import copy2
 
+# correct path if ends in / or not
+sample_path = str(Path(sample_path) / "{sample}")
 
 rule symlink:
     input:
-        bam=expand("{samples_dir}{sample}", sample=sample, samples_dir=sample_path),
-        bai=expand("{samples_dir}{sample}.bai", sample=sample, samples_dir=sample_path)
+        bam=expand(sample_path, sample=sample),
+        bai=expand(sample_path, sample=sample)
     output:
         bam=expand('mappings/{name}.bam', name=name),
         bai=expand('mappings/{name}.bam.bai', name=name)

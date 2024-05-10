@@ -25,9 +25,6 @@ def basename(path, suffix=None):
     return str(Path(path).name)
 
 
-container: "docker://tbrittoborges/leafcutter:latest"
-
-
 workdir: config.get("path", ".")
 
 
@@ -41,10 +38,10 @@ comp_names = config["contrasts"].keys()
 strand = {"fr-secondstrand": 2, "fr-firststrand": 1}
 
 
-localrules:
-    all,
-    leafcutter_concatenate,
-    symlink,
+#localrules:
+#    all,
+#    leafcutter_concatenate,
+#    symlink,
 
 
 include: "symlink.smk"
@@ -69,6 +66,7 @@ rule leafcutter_bam2junc:
         "leafcutter/{name}.junc",
     log:
         "logs/leafcutter/leafcutter_bam2junc/{name}.log",
+    container: "docker://tbrittoborges/leafcutter:latest"
     params:
         # defaults as suggested by leafcutter
         minimum_anchor_length=config.get("leafcutter_minimum_anchor_length", 8),
@@ -132,6 +130,7 @@ rule leafcutter_intron_clustering:
         n="{comp_names}",
     output:
         "leafcutter/{comp_names}/{comp_names}_perind_numers.counts.gz",
+    container: "docker://tbrittoborges/leafcutter:latest"
     log:
         "logs/leafcutter/leafcutter_intron_clustering/{comp_names}.log",
     shadow:
@@ -154,6 +153,7 @@ rule leafcutter_gtf_to_exon:
         b="leafcutter/exons.gtf.gz",
     log:
         "logs/leafcutter/leafcutter_gtf_to_exon.log",
+    container: "docker://tbrittoborges/leafcutter:latest"
     shadow:
         "shallow"
     shell:
@@ -170,6 +170,7 @@ rule leafcutter_differential_splicing:
         c="leafcutter/{comp_names}/diff_introns.txt",
     output:
         "leafcutter/{comp_names}/{comp_names}_cluster_significance.txt",
+    container: "docker://tbrittoborges/leafcutter:latest"
     params:
         min_samples_per_group=config.get("leafcutter_min_samples_per_group", 3),
         min_samples_per_intron=config.get("leafcutter_min_samples_per_intron", 5),

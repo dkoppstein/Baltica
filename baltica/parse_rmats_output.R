@@ -34,7 +34,7 @@ option_list <- list(
 # enabling both baltica or snakemake input
 if (exists("snakemake")) {
   opt <- list(
-    input = snakemake@input,
+    input = snakemake@params[["input_files"]],
     output = snakemake@output[[1]],
     cutoff = snakemake@params[["cutoff"]]
   )

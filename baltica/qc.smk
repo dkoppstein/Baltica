@@ -22,7 +22,7 @@ workdir: config.get("path", ".")
 include: "symlink.smk"
 
 
-container: "docker://tbrittoborges/qc:latest"
+
 
 
 id_name = name if "is_single_end" not in config else []
@@ -30,7 +30,7 @@ id_name = name if "is_single_end" not in config else []
 
 rule all:
     input:
-        expand("qc/fastqc/{name}_fastqc.zip", name=name),
+        expand("qc/fastqc/{name}_fastqc.zip", name=name), 
         "qc/ref.bed12",
         expand("qc/rseqc/{name}.inner_distance_plot.pdf", name=id_name),
         expand("qc/rseqc/{name}.GC_plot.pdf", name=name),
@@ -50,6 +50,7 @@ rule fastqc:
         html="qc/fastqc/{name}_fastqc.html",
         zip="qc/fastqc/{name}_fastqc.zip",
     threads: 10
+    container: "docker://tbrittoborges/qc:latest"
     params:
         prefix="qc/fastqc/",
     log:
@@ -63,6 +64,7 @@ rule ref_annotation_gtf_to_bed:
         config["ref"],
     output:
         "qc/ref.bed12",
+    container: "docker://tbrittoborges/qc:latest"
     log:
         "logs/ref_annotation_gtf_to_bed.log",
     shell:
@@ -79,6 +81,7 @@ rule rseqc_gene_body_coverage:
         "qc/rseqc/geneBodyCoverage.curves.pdf",
     params:
         prefix="qc/rseqc/",
+    container: "docker://tbrittoborges/qc:latest"
     log:
         "logs/rseqc_gene_body_coverage.log",
     shell:
@@ -93,6 +96,7 @@ rule rseqc_inner_distance:
         "qc/rseqc/{name}.inner_distance_plot.pdf",
     params:
         prefix="qc/rseqc/{name}",
+    container: "docker://tbrittoborges/qc:latest"
     log:
         "logs/rseqc_inner_distance_{name}.log",
     shell:
@@ -106,6 +110,7 @@ rule rseqc_read_gc:
         "qc/rseqc/{name}.GC_plot.pdf",
     params:
         prefix="qc/rseqc/{name}",
+    container: "docker://tbrittoborges/qc:latest"
     log:
         "logs/rseqc_read_gc_{name}.log",
     shell:
@@ -119,6 +124,7 @@ rule rseqc_read_duplication:
         "qc/rseqc/{name}.DupRate_plot.pdf",
     params:
         prefix="qc/rseqc/{name}",
+    container: "docker://tbrittoborges/qc:latest"
     log:
         "logs/rseqc_read_duplication_{name}.log",
     shell:
@@ -134,6 +140,7 @@ rule rseqc_junction_annotation:
         "qc/rseqc/{name}.splice_events.pdf",
     params:
         prefix="qc/rseqc/{name}",
+    container: "docker://tbrittoborges/qc:latest"
     log:
         "logs/rseqc_junction_annotation_{name}.log",
     shell:
@@ -148,6 +155,7 @@ rule rseqc_junction_saturation:
         "qc/rseqc/{name}.junctionSaturation_plot.pdf",
     params:
         prefix="qc/rseqc/{name}",
+    container: "docker://tbrittoborges/qc:latest"
     log:
         "logs/rseqc_junction_saturation_{name}.log",
     shell:
@@ -160,6 +168,7 @@ rule rseqc_infer_experiment:
         bam="mappings/{name}.bam",
     output:
         "qc/rseqc/{name}.infer_experiment.txt",
+    container: "docker://tbrittoborges/qc:latest"
     log:
         "logs/rseqc_infer_experiment_{name}.log",
     shell:
@@ -171,6 +180,7 @@ rule rseqc_bam_stat:
         "mappings/{name}.bam",
     output:
         "qc/rseqc/{name}.bam_stat.txt",
+    container: "docker://tbrittoborges/qc:latest"
     log:
         "logs/rseqc_bam_stat_{name}.log",
     shell:
@@ -183,6 +193,7 @@ rule rseqc_read_distribution:
         bed="qc/ref.bed12",
     output:
         "qc/rseqc/{name}.read_distribution.txt",
+    container: "docker://tbrittoborges/qc:latest"
     log:
         "logs/rseqc_read_distribution_{name}.log",
     shell:
@@ -194,6 +205,7 @@ rule multiqc:
         rules.all.input[:-1],
     output:
         "qc/multiqc/multiqc_report.html",
+    container: "docker://tbrittoborges/qc:latest"
     log:
         "logs/multiqc.log",
     shell:

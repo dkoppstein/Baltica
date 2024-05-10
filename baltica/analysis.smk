@@ -15,9 +15,6 @@ name = config["samples"].keys()
 contrasts = config["contrasts"]
 project_title = config.get("project_title", "").replace(' ', '_')
 
-container: "docker://tbrittoborges/baltica_analysis:1.0"
-
-
 import sys
 import pathlib
 
@@ -45,6 +42,7 @@ rule parse_majiq:
         "majiq/majiq_junctions.csv",
     log:
         "logs/parse_majiq.log",
+    container: "docker://tbrittoborges/baltica_analysis:1.0"
     params:
         cutoff=1.1,
     script:
@@ -57,6 +55,7 @@ rule parse_leafcutter:
             "leafcutter/{contrast}/{contrast}_cluster_significance.txt",
             contrast=contrasts.keys(),
         ),
+    container: "docker://tbrittoborges/baltica_analysis:1.0"
     output:
         "leafcutter/leafcutter_junctions.csv",
     log:
@@ -73,6 +72,7 @@ rule parse_junctionseq:
             "junctionseq/analysis/{contrast}_sigGenes.results.txt.gz",
             contrast=contrasts.keys(),
         ),
+    container: "docker://tbrittoborges/baltica_analysis:1.0"
     output:
         "junctionseq/junctionseq_junctions.csv",
     log:
@@ -85,17 +85,19 @@ rule parse_junctionseq:
 
 rule parse_rmats:
     input:
-        expand(
-            "rmats/{contrast}/{st}.MATS.JC.txt",
-            contrast=contrasts.keys(),
-            st=["A3SS", "A5SS", "RI", "MXE", "SE"],
-        ),
+        expand("rmats/{contrast}", contrast=contrasts.keys()),
+    container: "docker://tbrittoborges/baltica_analysis:1.0"
     output:
         "rmats/rmats_junctions.csv",
     log:
         "logs/parse_rmats.log",
     params:
         cutoff=1.1,
+        input_files=expand(
+            "rmats/{contrast}/{st}.MATS.JC.txt",
+            contrast=contrasts.keys(),
+            st=["A3SS", "A5SS", "RI", "MXE", "SE"],
+        ),
     log:
         "logs/parse_rmats.log",
     script:
@@ -109,6 +111,7 @@ rule annotate:
             method=["majiq", "leafcutter", "junctionseq", "rmats"],
         ),
         ref="stringtie/merged/merged.combined.gtf",
+    container: "docker://tbrittoborges/baltica_analysis:1.0"
     params:
         ref=config.get("ref"),
         orthogonal_result=config.get('orthogonal_result'),
@@ -127,6 +130,7 @@ rule assign_AS_type:
         ref="stringtie/merged/merged.combined.gtf",
     output:
         "results/SJ_annotated_assigned.csv",
+    container: "docker://tbrittoborges/baltica_analysis:1.0"
     log:
         "logs/assign_AS_type.log",
     script:
@@ -140,6 +144,7 @@ rule simplify:
         expand(
             "results/baltica_table{project_title}.xlsx", 
             project_title="_" + project_title),
+    container: "docker://tbrittoborges/baltica_analysis:1.0"
     log:
         "logs/simplify.log",
     script:
@@ -157,6 +162,7 @@ rule baltica_report:
         # star_sj=config.get("star_sj_file"),
         doc_title=config.get("project_title", ""),
         doc_authors=config.get("project_authors", ""),
+    container: "docker://tbrittoborges/baltica_analysis:1.0"
     output:
         expand(
             "results/baltica_report{project_title}.html", 

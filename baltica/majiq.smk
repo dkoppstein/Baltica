@@ -57,11 +57,6 @@ conditions = sorted(set([x.split("_")[0] for x in name]), key=natural_sort_key)
 mapping = {c: [x for x in name if x[: x.index("_")] == c] for c in conditions}
 
 
-localrules:
-    symlink,
-    majiq_create_ini,
-
-
 include: "symlink.smk"
 
 

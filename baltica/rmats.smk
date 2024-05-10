@@ -18,27 +18,23 @@ from collections import defaultdict
 import tempfile
 
 
-container: "docker://tbrittoborges/rmats:latest"
-
-
 workdir: config.get("path", ".")
 
 
 contrasts = config["contrasts"]
 keys = config["samples"].keys()
 keys = [tuple(x.split("_")) for x in keys]
+print(keys)
 
 temp_dir = tempfile.TemporaryDirectory()
 
 d = defaultdict(list)
 for x in keys:
     d[x[0]].append(x[1])
+print(d)
 
 include: "symlink.smk"
 
-
-localrules:
-    create_rmats_input,
 
 
 rule all:
@@ -53,7 +49,7 @@ rule rmats_create_input:
     log:
         "logs/rmats/create_input_{group}.log",
     output:
-        "rmats/{group}.txt",
+        "rmats/{group}.groups",
     run:
         with open(str(output), "w") as fou:
             fou.write(",".join(input))
@@ -61,8 +57,8 @@ rule rmats_create_input:
 
 rule rmats_run:
     input:
-        alt="rmats/{alt}.txt",
-        ref="rmats/{ref}.txt",
+        alt="rmats/{alt}.groups",
+        ref="rmats/{ref}.groups",
     output:
         directory("rmats/{alt}-vs-{ref}/"),
     shadow:
@@ -70,6 +66,7 @@ rule rmats_run:
     log:
         "logs/rmats/run_{alt}-vs-{ref}.log",
     threads: 10
+    container: "docker://tbrittoborges/rmats:latest"
     params:
         gtf=config["ref"],
         is_paired="single" if config.get("is_single_end") else "paired",
