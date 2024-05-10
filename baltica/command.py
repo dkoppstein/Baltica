@@ -154,7 +154,7 @@ def cli(workflow, config_file, verbose, snakemake_args):
 
         # bind several paths that contain input data
         snakemake_args.extend(
-            ['--singularity-args', '-B ' + ','.join(bound_path.difference('.'))])
+            ['--singularity-args', '"-B ' + ','.join(bound_path.difference('.')), '"'])
 
     try:
         _ = subprocess.run(['singularity', '--version'],
@@ -184,13 +184,12 @@ def cli(workflow, config_file, verbose, snakemake_args):
     TARGET DIRECTORY: {target}
     SNAKEMAKE ARGUMENTS: {' '.join(snakemake_args)}
     """)
-    cmd = [
-        'snakemake',
-        '--configfile', config_file,
-        '--snakefile', str(snakefile),
-        *snakemake_args]
+    cmd = '''eval "$(conda shell.bash hook)" && conda activate snakemake && snakemake --configfile {config_file} --snakefile {snakefile} {snakemake_arguments}'''
+    print(locals())
+    cmd = cmd.format(snakemake_arguments=' '.join(snakemake_args), **locals())
+    print('Running command: {cmd}'.format(cmd=cmd))
     logger.debug('Start of snakemake logger:')
-    result = subprocess.run(cmd)
+    result = subprocess.run(cmd, shell=True, executable='/bin/bash')
     return result.check_returncode
 
 
