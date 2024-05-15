@@ -139,7 +139,8 @@ def cli(workflow, config_file, verbose, snakemake_args):
             str(Path(config['ref_fa']).parent),
             str(Path(config['config_path']).parent),
             str(relative_path),
-            tempfile.gettempdir()]
+            tempfile.gettempdir(),
+            "/local"] # for dkfz cluster
 
         if 'orthogonal_result' in config:
             bound_path.append(str(Path(config['orthogonal_result']).parent))
@@ -154,7 +155,7 @@ def cli(workflow, config_file, verbose, snakemake_args):
 
         # bind several paths that contain input data
         snakemake_args.extend(
-            ['--singularity-args', '"-B ' + ','.join(bound_path.difference('.')), '"'])
+            ['--singularity-args', '"-B ' + ','.join(bound_path.difference('.')) + '"'])
 
     try:
         _ = subprocess.run(['singularity', '--version'],
@@ -184,9 +185,8 @@ def cli(workflow, config_file, verbose, snakemake_args):
     TARGET DIRECTORY: {target}
     SNAKEMAKE ARGUMENTS: {' '.join(snakemake_args)}
     """)
-    cmd = '''eval "$(conda shell.bash hook)" && conda activate snakemake && snakemake --configfile {config_file} --snakefile {snakefile} {snakemake_arguments}'''
-    print(locals())
-    cmd = cmd.format(snakemake_arguments=' '.join(snakemake_args), **locals())
+    cmd = '''eval "$(conda shell.bash hook)" && conda activate {snakemake_env} && snakemake --configfile {config_file} --snakefile {snakefile} {snakemake_arguments}'''
+    cmd = cmd.format(snakemake_env=config['snakemake_env'], snakemake_arguments=' '.join(snakemake_args), **locals())
     print('Running command: {cmd}'.format(cmd=cmd))
     logger.debug('Start of snakemake logger:')
     result = subprocess.run(cmd, shell=True, executable='/bin/bash')
