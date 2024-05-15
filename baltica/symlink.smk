@@ -11,7 +11,7 @@ sample_path = str(Path(sample_path) / "{sample}")
 rule symlink:
     input:
         bam=expand(sample_path, sample=sample),
-        bai=expand(sample_path, sample=sample)
+        bai=expand(sample_path + ".bai", sample=sample)
     output:
         bam=expand('mappings/{name}.bam', name=name),
         bai=expand('mappings/{name}.bam.bai', name=name)
