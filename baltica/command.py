@@ -185,7 +185,7 @@ def cli(workflow, config_file, verbose, snakemake_args):
     TARGET DIRECTORY: {target}
     SNAKEMAKE ARGUMENTS: {' '.join(snakemake_args)}
     """)
-    cmd = '''eval "$(conda shell.bash hook)" && conda activate {snakemake_env} && snakemake --configfile {config_file} --snakefile {snakefile} {snakemake_arguments}'''
+    cmd = '''eval "$(conda shell.bash hook)" && conda activate {snakemake_env} && snakemake --configfile {config_file} --snakefile {snakefile} --keep-going {snakemake_arguments}'''
     cmd = cmd.format(snakemake_env=config['snakemake_env'], snakemake_arguments=' '.join(snakemake_args), **locals())
     print('Running command: {cmd}'.format(cmd=cmd))
     logger.debug('Start of snakemake logger:')

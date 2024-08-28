@@ -42,9 +42,6 @@ def create_ini(output):
         ini.writelines("\n".join(lines))
 
 
-container: "docker://tbrittoborges/majiq:2.2"
-
-
 workdir: config.get("path", ".")
 
 
@@ -86,6 +83,7 @@ rule majiq_gtf_to_gff:
     output: "majiq/ref.gff"
     log: 
         "logs/majiq_gtf_to_gff.log"
+    container: "docker://tbrittoborges/majiq:2.2"
     shadow:
         "shallow"
     shell:
@@ -102,6 +100,7 @@ rule majiq_build:
     threads: len(conditions)
     log:
         "logs/majiq_build.log",
+    container: "docker://tbrittoborges/majiq:2.2"
     shell:
         " majiq build --conf {input.ini} --nproc {threads} --output majiq/ {input.ref}"
 
@@ -115,6 +114,7 @@ rule majiq_deltapsi:
     threads: 10
     log:
         "logs/majiq_deltapsi/{contrast}.log",
+    container: "docker://tbrittoborges/majiq:2.2"
     params:
         name=lambda wc: wc.contrast.replace("-vs-", " "),
         name2=lambda wc: wc.contrast.replace("-vs-", "_"),
@@ -137,6 +137,7 @@ rule majiq_voila:
         "majiq/voila/{contrast}_voila.tsv",
     log:
         "logs/majiq_voila/{contrast}.log",
+    container: "docker://tbrittoborges/majiq:2.2"
     params:
         threshold=config.get("majiq_threshold", 0.2),
         non_changing_threshold=config.get("majiq_non_changing_threshold", 0.05),

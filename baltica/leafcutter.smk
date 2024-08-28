@@ -177,6 +177,8 @@ rule leafcutter_differential_splicing:
         min_coverage=config.get("leafcutter_min_coverage", 20),
         prefix="leafcutter/{comp_names}/{comp_names}",
     threads: 10
+    resources:
+        mem_mb=12000
     log:
         "logs/leafcutter/leafcutter_differential_splicing/{comp_names}.log",
     shadow:

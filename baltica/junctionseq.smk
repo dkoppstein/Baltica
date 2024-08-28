@@ -65,6 +65,8 @@ rule junctionseq_qc:
         max_read=config["read_len"],
         is_paired_end="--singleEnded" if config.get("is_single_end") == True else "",
     container: "docker://tbrittoborges/junctionseq:1.16.0"
+    resources: 
+        mem_mb=lambda wc, input: max(2.5 * input.size_mb, 4000)
     log:
         "logs/junctionseq_qc/{name}.log",
     shadow:
@@ -119,6 +121,8 @@ rule junctionseq_merge:
     log:
         "logs/junctionseq_merge.log",
     container: "docker://tbrittoborges/junctionseq:1.16.0"
+    resources:
+        mem_mb=12000,
     shadow:
         "shallow"
     shell:

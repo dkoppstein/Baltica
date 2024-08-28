@@ -67,6 +67,8 @@ rule rmats_run:
         "logs/rmats/run_{alt}-vs-{ref}.log",
     threads: 10
     container: "docker://tbrittoborges/rmats:latest"
+    resources:
+        mem_mb=16000
     params:
         gtf=config["ref"],
         is_paired="single" if config.get("is_single_end") else "paired",
